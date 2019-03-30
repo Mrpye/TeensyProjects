@@ -10,12 +10,12 @@
 // *****************************************
 // WAV files converted to code by wav2sketch
 // *****************************************
-#include "AudioSampleSnare.h"        // http://www.freesound.org/people/KEVOY/sounds/82583/
-#include "AudioSampleTomtom.h"       // http://www.freesound.org/people/zgump/sounds/86334/
-#include "AudioSampleHihat.h"        // http://www.freesound.org/people/mhc/sounds/102790/
-#include "AudioSampleKick.h"         // http://www.freesound.org/people/DWSD/sounds/171104/
-#include "AudioSampleGong.h"         // http://www.freesound.org/people/juskiddink/sounds/86773/
-#include "AudioSampleCashregister.h" // http://www.freesound.org/people/kiddpark/sounds/201159/
+#include "AudioSampleSample1.h"        // http://www.freesound.org/people/KEVOY/sounds/82583/
+#include "AudioSampleSample2.h"       // http://www.freesound.org/people/zgump/sounds/86334/
+#include "AudioSampleSample3.h"        // http://www.freesound.org/people/mhc/sounds/102790/
+#include "AudioSampleSample4.h"         // http://www.freesound.org/people/DWSD/sounds/171104/
+#include "AudioSampleSample5.h"         // http://www.freesound.org/people/juskiddink/sounds/86773/
+#include "AudioSampleSample6.h" // http://www.freesound.org/people/kiddpark/sounds/201159/
 
 
 
@@ -191,16 +191,16 @@ Rand_Pattern();
 
   // reduce the gain on mixer channels, so more than 1
   // sound can play simultaneously without clipping
-  mix1.gain(0, 0.8);
-  mix1.gain(1, 0.8);
-  mix1.gain(2, 0.8);
-  mix1.gain(3, 0.8);
-  mix2.gain(1, 0.8);
-  mix2.gain(2, 0.8);
-  mix2.gain(3, 0.3);
+  mix1.gain(0, 0.5);
+  mix1.gain(1, 0.5);
+  mix1.gain(2, 0.5);
+  mix1.gain(3, 0.5);
+  mix2.gain(1, 0.5);
+  mix2.gain(2, 0.5);
+  mix2.gain(3, 1);
   
-  freeverb1.roomsize(0.1);
-   freeverb1.damping(0);
+  freeverb1.roomsize(1);
+   freeverb1.damping(0.5);
 }
 long touch_count=0;
 
@@ -231,8 +231,11 @@ void loop() {
 
 
   int res=ReadPot();
+//Serial.println(res);
+
+  
   //map(value, fromLow, fromHigh, toLow, toHigh)
-  int bpm=map(res, 1, 1023, 20, 250);
+  int bpm=map(res, 1, 1023, 500, 5000);
   
   for(int i=0;i<TRIGGER_COUNT;i++){
     triggers[i].butt.update();
@@ -248,23 +251,23 @@ void loop() {
 
           switch (triggers[i].soundid) {
             case SOUND1:
-              sound0.play(AudioSampleSnare);
+              sound0.play(AudioSampleSample1);
               break;
             case SOUND2:
-              sound1.play(AudioSampleTomtom);
+              sound1.play(AudioSampleSample2);
               break;
              case SOUND3:
              Serial.print("bb");
-              sound2.play(AudioSampleHihat);
+              sound2.play(AudioSampleSample3);
               break;
             case SOUND4:
-              sound3.play(AudioSampleKick);
+              sound3.play(AudioSampleSample4);
               break;
             case SOUND5:
-              sound4.play(AudioSampleGong);
+              sound4.play(AudioSampleSample5);
               break;
             case SOUND6:
-              sound5.play(AudioSampleCashregister);
+              sound5.play(AudioSampleSample6);
               break;
           }
         }
