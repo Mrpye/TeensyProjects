@@ -2,7 +2,7 @@
 #include <SD.h>
 #include <SPI.h>
 
-const int SDchipSelect = 4;    // Audio Shield has SD card CS on pin 10
+const int SDchipSelect = 10;    // Audio Shield has SD card CS on pin 10
 const int FlashChipSelect = 6; // digital pin for flash chip CS pin
 //const int FlashChipSelect = 21; // Arduino 101 built-in SPI Flash
 

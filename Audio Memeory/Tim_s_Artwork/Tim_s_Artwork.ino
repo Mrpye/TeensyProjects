@@ -1,10 +1,6 @@
 #include <Wire.h>
 #include "Adafruit_MPR121.h"
-#include "ScaleManager.h"
-#include <Audio.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
+
 #include <FastLED.h>
 
 #define NUM_LEDS 1
@@ -13,7 +9,11 @@ CRGB leds[NUM_LEDS];
 #define DATA_PIN 3
 #define CLOCK_PIN 13
 elapsedMillis timer = 0;
-int delayValue = 0;
+int delayValue = 5;
+#include <Audio.h>
+#include <SPI.h>
+#include <SD.h>
+#include <SerialFlash.h>
 long nextBeat = 0;
 byte byteIndex = 0;
 //
@@ -63,8 +63,8 @@ AudioControlSGTL5000     codec;
 
 byte cycle;
 bool triggerToggle[16] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-byte pattern[16];
-String soundFile[16] = {"TIM-01.RAW", "TIM-02.RAW", "TIM-03.RAW", "TIM-04.RAW", "TIM-05.RAW", "TIM-06.RAW", "TIM-07.RAW", "TIM-08.RAW", "TIM-09.RAW", "TIM-10.RAW", "TIM-11.RAW", "TIM-12.RAW", "TIM-13.RAW", "TIM-14.RAW", "TIM-15.RAW", "TIM-16.RAW"};
+byte pattern[16]={1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+String soundFile[16] = {"A1.WAV", "B1.WAV", "C1.WAV", "D1.WAV", "E1.WAV", "F1.WAV", "G1.WAV", "C1.WAV"};
 Adafruit_MPR121 cap5A = Adafruit_MPR121();
 Adafruit_MPR121 cap5C = Adafruit_MPR121();
 
@@ -117,8 +117,8 @@ void setup() {
   //      Serial.println("MPR121 found!");
   //    }
 
-  cap5A.setThresholds(TOUCH, RELEASE);
-  cap5C.setThresholds(TOUCH, RELEASE);
+  //cap5A.setThresholds(TOUCH, RELEASE);
+  //cap5C.setThresholds(TOUCH, RELEASE);
 
   // wait for Arduino Serial Monitor
   while (!Serial) ;
@@ -148,13 +148,15 @@ void setup() {
 
   // file test: just to verify we have the right files
   SerialFlashFile file;
-  file = SerialFlash.open("TIM-07.RAW");
-  delay(3000);
+  file = SerialFlash.open("A1.WAV");
+  delay(5000);
   if (!file) {  // true if the file exists
     Serial.println ("File not found :(");
   }
   if (file) {  // true if the file exists
     Serial.println ("File found! :D");
+    sound[0].play("A1.WAV");
+     sound[1].play("C1.WAV");
   }
 }
 
@@ -164,13 +166,13 @@ void loop() {
     for (byte i = 0; i < 16; i++) {
       if (triggerToggle) {
         if (bitRead(pattern[byteIndex], pattern[i]) == 1) {
-          char charBuf[50];
-          soundFile[cycle].toCharArray(charBuf, 50);
-          sound[cycle].play(charBuf);
-          leds[i] = CRGB::White;
-          FastLED.show();
+          char charBuf[100];
+        //  soundFile[0].toCharArray(charBuf, 50);
+         // sound[0].play(charBuf);
+          //leds[i] = CRGB::White;
+          //FastLED.show();
         } else {
-          leds[i] = CRGB::Red;
+          //leds[i] = CRGB::Red;
         }
       }
     }
