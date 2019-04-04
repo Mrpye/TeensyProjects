@@ -165,12 +165,12 @@ void setup() {
 
  // turn on the output
   audioShield.enable();
-  audioShield.volume(0.8);
+  audioShield.volume(1.0);
 
   sound[0].play("C1.TRW");
   // reduce the gain on mixer channels, so more than 1
   // sound can play simultaneously without clipping
-  const float vol=0.33;
+  const float vol=0.35;
   for (uint8_t i=0; i<4; i++) {
     mix5.gain(i, vol);
     mix6.gain(i, vol);
