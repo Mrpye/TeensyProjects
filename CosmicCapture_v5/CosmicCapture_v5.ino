@@ -92,9 +92,6 @@ AudioPlayMemory sound[] = {
     AudioPlayMemory(),
     AudioPlayMemory(),
     AudioPlayMemory()}; //xy=123,44
-    
-float volumes[16]={0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35,0.35};
-
 
 // GUItool: begin automatically generated code
 AudioMixer4 mix5;          //xy=284,96
@@ -108,6 +105,7 @@ AudioMixer4 mix13;         //xy=361,1701
 AudioMixer4 mix9;          //xy=457,271
 AudioMixer4 mix14;         //xy=506,1188
 AudioMixer4 mix15;         //xy=573,503
+
 AudioOutputAnalog dac;     //xy=747,360
 AudioOutputI2S headphones; //xy=764,309
 
@@ -332,6 +330,7 @@ void PlaySound(uint8_t i)
             Serial.print(i);
             Serial.println(" playing");
             mixarray[j].gain(mixchannel[j],1);
+            );
             sound[j].play(sounds[i]);
             break;
         }
