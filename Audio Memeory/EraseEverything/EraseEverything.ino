@@ -2,8 +2,6 @@
 #include <SPI.h>
 
 const int FlashChipSelect = 6; // digital pin for flash chip CS pin
-//const int FlashChipSelect = 21; // Arduino 101 built-in SPI Flash
-
 SerialFlashFile file;
 
 const unsigned long testIncrement = 4096;
