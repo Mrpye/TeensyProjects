@@ -87,6 +87,14 @@ const int buttonBankDown = 4;
 
 bool isplaying = true;
 
+int latchPin = 16;
+int clockPin = 17;
+int dataPin = 8;
+ 
+//holders for infromation you're going to pass to shifting function
+byte dataRED;
+byte dataGREEN;
+
 Bounce playbutton = Bounce(buttonPlay, 10);     // 10 ms debounce
 Bounce fillbutton = Bounce(buttonFill, 10);     // 10 ms debounce
 Bounce upbutton = Bounce(buttonBankUp, 10);     // 10 ms debounce
@@ -99,6 +107,8 @@ void error(const char *message);
 void erase_flash();
 void flash_memeory();
 bool compareFiles(File &file, SerialFlashFile &ffile);
+void shiftOut(int myDataPin, int myClockPin, byte myDataOut);
+void blinkAll_2Bytes(int n, int d);
 
 void setup() {
 
@@ -106,6 +116,8 @@ void setup() {
   Serial.begin(9600);
   delay(1000);
 
+  pinMode(latchPin, OUTPUT);
+  
   // wait up to 10 seconds for Arduino Serial Monitor
   unsigned long startMillis = millis();
   while (!Serial && (millis() - startMillis < 10000))
@@ -176,6 +188,8 @@ void setup() {
     mixer[1].gain(i, vol);
     mixer[2].gain(i, vol);
   }
+  //delay(1000);/
+  blinkAll_2Bytes(2,500); 
 }
 
 void loop() {
@@ -206,8 +220,8 @@ void loop() {
   int tempA = analogRead(A6);
   tempo = map(tempA, 0, 1023, 300, 50);
   if (tempo != last_tempo) {
-    Serial.print("Temp ");
-    Serial.println(tempo);
+   // Serial.print("Temp ");
+   // Serial.println(tempo);
   }
   last_tempo = tempo;
   currtouchedA = capA.touched();
@@ -241,10 +255,24 @@ void loop() {
   // reset our state
   lasttouchedA = currtouchedA;
   lasttouchedB = currtouchedB;
-
+  
   if (millis() >= next) {
     next = millis() + tempo;
+    dataRED=0;
+    dataGREEN=0;
+    digitalWrite(latchPin, 0);
+    //Display the pattern
+    for (int i = 0; i < 16; i++) {
+        if(pattern[current_sound][i]==1){
+          SetPattern(i);
+        }else if(i==pattern_index){
+           if (isplaying == true) {
+            SetPattern(i);
+           }
+        }
+    }
 
+    
     for (int i = 0; i < 8; i++) {
       if (pattern[i][pattern_index] == 1) {
         if (isplaying == true) {
@@ -256,7 +284,20 @@ void loop() {
     if (pattern_index > 15) {
       pattern_index = 0;
     }
+    //Display the data
+    shiftOut(dataPin, clockPin, dataRED);
+    shiftOut(dataPin, clockPin, dataGREEN);   
+    digitalWrite(latchPin, 1);
   }
+}
+
+void SetPattern(int i){
+  i=15-i;
+  if(i<8){
+        bitSet(dataGREEN,i);
+     }else{
+        bitSet(dataRED,i-8);
+     }
 }
 
 char *string2char(String str) {
@@ -438,5 +479,77 @@ void error(const char *message) {
   while (1) {
     Serial.println(message);
     delay(2500);
+  }
+}
+
+// the heart of the program
+void shiftOut(int myDataPin, int myClockPin, byte myDataOut) {
+  // This shifts 8 bits out MSB first, 
+  //on the rising edge of the clock,
+  //clock idles low
+
+  //internal function setup
+  int i=0;
+  int pinState;
+  pinMode(myClockPin, OUTPUT);
+  pinMode(myDataPin, OUTPUT);
+
+  //clear everything out just in case to
+  //prepare shift register for bit shifting
+  digitalWrite(myDataPin, 0);
+  digitalWrite(myClockPin, 0);
+
+  //for each bit in the byte myDataOut�
+  //NOTICE THAT WE ARE COUNTING DOWN in our for loop
+  //This means that %00000001 or "1" will go through such
+  //that it will be pin Q0 that lights. 
+  for (i=7; i>=0; i--)  {
+    digitalWrite(myClockPin, 0);
+
+    //if the value passed to myDataOut and a bitmask result 
+    // true then... so if we are at i=6 and our value is
+    // %11010100 it would the code compares it to %01000000 
+    // and proceeds to set pinState to 1.
+    if ( myDataOut & (1<<i) ) {
+      pinState= 1;
+    }
+    else { 
+      pinState= 0;
+    }
+
+    //Sets the pin to HIGH or LOW depending on pinState
+    digitalWrite(myDataPin, pinState);
+    //register shifts bits on upstroke of clock pin  
+    digitalWrite(myClockPin, 1);
+    //zero the data pin after shift to prevent bleed through
+    digitalWrite(myDataPin, 0);
+  }
+
+  //stop shifting
+  digitalWrite(myClockPin, 0);
+}
+
+
+//blinks the whole register based on the number of times you want to 
+//blink "n" and the pause between them "d"
+//starts with a moment of darkness to make sure the first blink
+//has its full visual effect.
+void blinkAll_2Bytes(int n, int d) {
+  digitalWrite(latchPin, 0);
+  shiftOut(dataPin, clockPin, 0);
+  shiftOut(dataPin, clockPin, 0);
+  digitalWrite(latchPin, 1);
+  delay(200);
+  for (int x = 0; x < n; x++) {
+    digitalWrite(latchPin, 0);
+    shiftOut(dataPin, clockPin, 255);
+    shiftOut(dataPin, clockPin, 255);
+    digitalWrite(latchPin, 1);
+    delay(d);
+    digitalWrite(latchPin, 0);
+    shiftOut(dataPin, clockPin, 0);
+    shiftOut(dataPin, clockPin, 0);
+    digitalWrite(latchPin, 1);
+    delay(d);
   }
 }
